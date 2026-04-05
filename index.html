@@ -10,7 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="enter-screen" onclick="startApp()">
+    <div id="loading-screen">
+        <div class="loader"></div>
+        <p id="loading-text">YÜKLENİYOR... 0%</p>
+    </div>
+
+    <div id="enter-screen" style="display: none;">
         <p>GİRİŞ YAPMAK İÇİN TIKLA</p>
     </div>
 
@@ -32,11 +37,44 @@
     </div>
 
     <script>
-        function startApp() {
-            const video = document.getElementById('bg-video');
-            const enterScreen = document.getElementById('enter-screen');
-            const app = document.getElementById('app-container');
+        const video = document.getElementById('bg-video');
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingText = document.getElementById('loading-text');
+        const enterScreen = document.getElementById('enter-screen');
+        const app = document.getElementById('app-container');
 
+        // Video yükleme takibi
+        video.addEventListener('progress', () => {
+            if (video.duration > 0) {
+                const buffered = video.buffered;
+                if (buffered.length > 0) {
+                    const percent = (buffered.end(0) / video.duration) * 100;
+                    loadingText.innerText = `YÜKLENİYOR... ${Math.round(percent)}%`;
+                    
+                    if (percent > 30) { // %30 dolunca giriş ekranını hazırla
+                         showEnterScreen();
+                    }
+                }
+            }
+        });
+
+        // Alternatif olarak video hazır olduğunda
+        video.oncanplaythrough = () => {
+            showEnterScreen();
+        };
+
+        function showEnterScreen() {
+            if (loadingScreen.style.display !== 'none') {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    enterScreen.style.display = 'flex';
+                    enterScreen.style.opacity = '1';
+                }, 500);
+            }
+        }
+
+        function startApp() {
             enterScreen.style.opacity = '0';
             setTimeout(() => {
                 enterScreen.style.display = 'none';
@@ -45,6 +83,9 @@
                 video.muted = false;
             }, 500);
         }
+
+        // Tıklama eventini enter-screen'e ekle
+        enterScreen.addEventListener('click', startApp);
     </script>
 </body>
 </html>

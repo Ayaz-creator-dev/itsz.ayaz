@@ -15,7 +15,7 @@ body {
     align-items: center;
 }
 
-#enter-screen {
+#enter-screen, #loading-screen {
     position: fixed;
     top: 0;
     left: 0;
@@ -23,18 +23,39 @@ body {
     height: 100%;
     background: radial-gradient(circle, rgba(20,20,20,1) 0%, rgba(0,0,0,1) 100%);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    cursor: pointer;
     transition: opacity 0.5s ease;
 }
 
-#enter-screen p {
+#enter-screen {
+    cursor: pointer;
+}
+
+#enter-screen p, #loading-screen p {
     font-size: 1.2rem;
     letter-spacing: 0.3em;
     font-weight: 300;
+    margin-top: 2rem;
+}
+
+#enter-screen p {
     animation: pulse 2s infinite ease-in-out;
+}
+
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 @keyframes pulse {
