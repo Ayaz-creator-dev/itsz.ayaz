@@ -43,35 +43,53 @@
         const enterScreen = document.getElementById('enter-screen');
         const app = document.getElementById('app-container');
 
-        // Video yükleme takibi
-        video.addEventListener('progress', () => {
-            if (video.duration > 0) {
-                const buffered = video.buffered;
-                if (buffered.length > 0) {
-                    const percent = (buffered.end(0) / video.duration) * 100;
-                    loadingText.innerText = `YÜKLENİYOR... ${Math.round(percent)}%`;
-                    
-                    if (percent > 30) { // %30 dolunca giriş ekranını hazırla
-                         showEnterScreen();
-                    }
-                }
-            }
-        });
+        let isReady = false;
 
-        // Alternatif olarak video hazır olduğunda
+        // Video yükleme takibi
+        function updateProgress() {
+            if (isReady) return;
+
+            const duration = video.duration;
+            const buffered = video.buffered;
+
+            if (duration > 0 && buffered.length > 0) {
+                const percent = (buffered.end(0) / duration) * 100;
+                loadingText.innerText = `YÜKLENİYOR... %${Math.round(percent)}`;
+                
+                // %15 dolunca veya video oynamaya hazır olduğunda giriş ekranını göster
+                if (percent > 15) { 
+                     showEnterScreen();
+                }
+            } else {
+                loadingText.innerText = "VARLIKLAR HAZIRLANIYOR...";
+            }
+        }
+
+        video.addEventListener('progress', updateProgress);
+        video.addEventListener('loadedmetadata', updateProgress);
+        
+        // Video oynamaya hazır olduğunda
         video.oncanplaythrough = () => {
             showEnterScreen();
         };
 
-        function showEnterScreen() {
-            if (loadingScreen.style.display !== 'none') {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    enterScreen.style.display = 'flex';
-                    enterScreen.style.opacity = '1';
-                }, 500);
+        // Yedek Plan: Eğer 10 saniye içinde açılmazsa ama video iniyorsa butonu göster
+        setTimeout(() => {
+            if (video.buffered.length > 0) {
+                showEnterScreen();
             }
+        }, 10000);
+
+        function showEnterScreen() {
+            if (isReady) return;
+            isReady = true;
+
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                enterScreen.style.display = 'flex';
+                enterScreen.style.opacity = '1';
+            }, 500);
         }
 
         function startApp() {
@@ -84,7 +102,6 @@
             }, 500);
         }
 
-        // Tıklama eventini enter-screen'e ekle
         enterScreen.addEventListener('click', startApp);
     </script>
 </body>
